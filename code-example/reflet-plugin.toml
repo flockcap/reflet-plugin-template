@@ -1,0 +1,12 @@
+id = "com.example.todo"
+name = "TODO highlighter"
+version = "0.1.0"
+kinds = ["code"]
+capabilities = ["editor.read", "editor.write", "editor.decorate", "editor.diagnostics", "commands", "ui.statusbar"]
+min_reflet = "0.0.1"
+description = "Marks TODO, FIXME and HACK comments in the gutter, lists them as diagnostics and adds Go to Next TODO."
+license = "MIT"
+homepage = "https://github.com/<you>/<repo>"
+
+[flock]
+owner = "your-flock-username"

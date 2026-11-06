@@ -1,0 +1,61 @@
+# On a version tag (vX.Y.Z): build every plugin and attach <id>-<version>.reflet-plugin to the
+# GitHub Release. Then submit (first time) or Sync the repo on https://id.flock.holdings/plugins.
+name: release
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Zig 0.17.1
+        env:
+          ZIG_VERSION: "0.17.1"
+        run: |
+          set -euo pipefail
+          url="https://ziglang.org/download/${ZIG_VERSION}/zig-x86_64-linux-${ZIG_VERSION}.tar.xz"
+          curl -fsSL "$url" -o zig.tar.xz
+          mkdir -p "$RUNNER_TEMP/zig"
+          tar -xf zig.tar.xz -C "$RUNNER_TEMP/zig" --strip-components=1
+          echo "$RUNNER_TEMP/zig" >> "$GITHUB_PATH"
+
+      - name: Check the tag matches every manifest version
+        env:
+          TAG: ${{ github.ref_name }}
+        run: |
+          set -euo pipefail
+          want="${TAG#v}"
+          status=0
+          for m in */reflet-plugin.toml; do
+            have="$(sed -n 's/^version[[:space:]]*=[[:space:]]*"\(.*\)"/\1/p' "$m" | head -n1)"
+            if [ "$have" != "$want" ]; then
+              echo "::error file=$m::version is \"$have\" but the tag is \"$TAG\""
+              status=1
+            fi
+          done
+          exit "$status"
+
+      - name: Build and test
+        run: |
+          set -euo pipefail
+          zig build test
+          zig build
+          ls -l zig-out/*.reflet-plugin
+
+      - name: Attach to the release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ github.ref_name }}
+        run: |
+          set -euo pipefail
+          if ! gh release view "$TAG" >/dev/null 2>&1; then
+            gh release create "$TAG" --title "$TAG" --notes "Built from $TAG."
+          fi
+          gh release upload "$TAG" zig-out/*.reflet-plugin --clobber

@@ -1,0 +1,12 @@
+id = "com.example.xor-strings"
+name = "Stack & XOR string decoder"
+version = "0.1.0"
+kinds = ["re"]
+capabilities = ["analysis.read", "analysis.write", "analysis.pass", "re.view", "commands"]
+min_reflet = "0.0.1"
+description = "Finds strings built on the stack or XOR-obfuscated with a constant byte, comments them in place and lists them in a Decoded strings panel."
+license = "MIT"
+homepage = "https://github.com/<you>/<repo>"
+
+[flock]
+owner = "your-flock-username"

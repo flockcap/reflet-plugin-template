@@ -1,0 +1,8 @@
+.{
+    .name = .reflet_plugin_template,
+    .version = "0.1.0",
+    .fingerprint = 0x117238646fca18d2,
+    .minimum_zig_version = "0.17.1",
+    .dependencies = .{},
+    .paths = .{ "build.zig", "build.zig.zon", "sdk", "tools", "re-example", "code-example", "LICENSE", "README.md" },
+}
